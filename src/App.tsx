@@ -10,6 +10,8 @@ import { AppLayout } from "./components/layout/AppLayout";
 
 // Pages
 import LoginScreen from "./pages/LoginScreen";
+import SignUpScreen from "./pages/SignUpScreen";
+import ForgotPasswordScreen from "./pages/ForgotPasswordScreen";
 import DashboardScreen from "./pages/DashboardScreen";
 import StudentsScreen from "./pages/StudentsScreen";
 import TeachersScreen from "./pages/TeachersScreen";
@@ -22,13 +24,25 @@ import NotificationsScreen from "./pages/NotificationsScreen";
 import AddStudentScreen from "./pages/AddStudentScreen";
 import ExamsScreen from "./pages/ExamsScreen";
 import ClassesScreen from "./pages/ClassesScreen";
+import ProfileScreen from "./pages/ProfileScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -39,7 +53,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 // Public Route Component (redirects to dashboard if authenticated)
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
@@ -57,6 +82,16 @@ const AppRoutes = () => {
           <LoginScreen />
         </PublicRoute>
       } />
+      <Route path="/signup" element={
+        <PublicRoute>
+          <SignUpScreen />
+        </PublicRoute>
+      } />
+      <Route path="/forgot-password" element={
+        <PublicRoute>
+          <ForgotPasswordScreen />
+        </PublicRoute>
+      } />
       
       {/* Protected Routes */}
       <Route element={
@@ -64,19 +99,37 @@ const AppRoutes = () => {
           <AppLayout />
         </ProtectedRoute>
       }>
+        {/* Common Routes */}
         <Route path="/dashboard" element={<DashboardScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/notifications" element={<NotificationsScreen />} />
+        
+        {/* Admin Routes */}
         <Route path="/students" element={<StudentsScreen />} />
+        <Route path="/students/add" element={<AddStudentScreen />} />
         <Route path="/teachers" element={<TeachersScreen />} />
         <Route path="/parents" element={<ParentsScreen />} />
+        <Route path="/classes-sections" element={<ClassesScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
         <Route path="/attendance" element={<AttendanceScreen />} />
         <Route path="/import-data" element={<ImportExportScreen />} />
         <Route path="/export-data" element={<ImportExportScreen />} />
         <Route path="/academic-calendar" element={<CalendarScreen />} />
-        <Route path="/notifications" element={<NotificationsScreen />} />
-        <Route path="/students/add" element={<AddStudentScreen />} />
         <Route path="/examinations" element={<ExamsScreen />} />
-        <Route path="/classes-sections" element={<ClassesScreen />} />
+        
+        {/* Teacher Routes */}
+        <Route path="/teacher/classes" element={<ClassesScreen />} />
+        <Route path="/assignments" element={<ExamsScreen />} />
+        
+        {/* Parent Routes */}
+        <Route path="/parent/children" element={<StudentsScreen />} />
+        <Route path="/parent/attendance" element={<AttendanceScreen />} />
+        <Route path="/parent/fees" element={<SettingsScreen />} />
+        
+        {/* Student Routes */}
+        <Route path="/student/classes" element={<ClassesScreen />} />
+        <Route path="/student/assignments" element={<ExamsScreen />} />
+        <Route path="/student/results" element={<ExamsScreen />} />
       </Route>
       
       {/* Redirects */}

@@ -4,11 +4,39 @@ import {
   Users, 
   GraduationCap, 
   UserCircle,
-  Settings 
+  Settings,
+  School,
+  ClipboardCheck,
+  FileText,
+  CreditCard,
+  Award,
+  User,
+  type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRoleBasedAccess } from '@/hooks/useRoleBasedAccess';
 
-const navItems = [
+interface NavItem {
+  label: string;
+  path: string;
+  icon: LucideIcon;
+}
+
+const iconMap: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  GraduationCap,
+  Users,
+  UserCircle,
+  Settings,
+  School,
+  ClipboardCheck,
+  FileText,
+  CreditCard,
+  Award,
+  User,
+};
+
+const adminNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: GraduationCap, label: 'Students', path: '/students' },
   { icon: Users, label: 'Teachers', path: '/teachers' },
@@ -16,9 +44,44 @@ const navItems = [
   { icon: Settings, label: 'More', path: '/settings' },
 ];
 
+const teacherNavItems: NavItem[] = [
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+  { icon: School, label: 'Classes', path: '/teacher/classes' },
+  { icon: ClipboardCheck, label: 'Attendance', path: '/attendance' },
+  { icon: FileText, label: 'Assignments', path: '/assignments' },
+  { icon: User, label: 'Profile', path: '/profile' },
+];
+
+const parentNavItems: NavItem[] = [
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+  { icon: Users, label: 'Children', path: '/parent/children' },
+  { icon: ClipboardCheck, label: 'Attendance', path: '/parent/attendance' },
+  { icon: CreditCard, label: 'Fees', path: '/parent/fees' },
+  { icon: User, label: 'Profile', path: '/profile' },
+];
+
+const studentNavItems: NavItem[] = [
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+  { icon: School, label: 'Classes', path: '/student/classes' },
+  { icon: FileText, label: 'Assignments', path: '/student/assignments' },
+  { icon: Award, label: 'Results', path: '/student/results' },
+  { icon: User, label: 'Profile', path: '/profile' },
+];
+
 export const MobileNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAdmin, isTeacher, isParent, isStudent } = useRoleBasedAccess();
+
+  const getNavItems = (): NavItem[] => {
+    if (isAdmin()) return adminNavItems;
+    if (isTeacher()) return teacherNavItems;
+    if (isParent()) return parentNavItems;
+    if (isStudent()) return studentNavItems;
+    return adminNavItems; // Default fallback
+  };
+
+  const navItems = getNavItems();
 
   return (
     <nav className="mobile-nav">
@@ -26,6 +89,8 @@ export const MobileNav = () => {
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
+          
+          const IconComponent = item.icon;
           
           return (
             <button
@@ -42,7 +107,7 @@ export const MobileNav = () => {
                 "p-2 rounded-xl transition-all duration-200",
                 isActive && "gradient-primary shadow-glow"
               )}>
-                <item.icon className={cn(
+                <IconComponent className={cn(
                   "h-5 w-5",
                   isActive && "text-primary-foreground"
                 )} />

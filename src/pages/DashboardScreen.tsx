@@ -32,10 +32,12 @@ import { toast } from 'sonner';
 
 const DashboardScreen = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { profile, signOut } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const displayName = profile ? `${profile.first_name} ${profile.last_name}` : 'Admin';
+
+  const handleLogout = async () => {
+    await signOut();
     toast.success('Logged out successfully');
     navigate('/login');
   };
@@ -76,11 +78,11 @@ const DashboardScreen = () => {
       {/* Header */}
       <div className="flex items-center justify-between py-4">
         <div className="flex items-center gap-3">
-          <Avatar name={user?.name || 'Admin'} size="lg" />
+          <Avatar name={displayName} size="lg" />
           <div>
             <p className="text-sm text-muted-foreground">Welcome back,</p>
             <h1 className="text-lg font-bold font-display text-foreground">
-              {user?.name?.split(' ')[0] || 'Principal'}
+              {profile?.first_name || 'Admin'}
             </h1>
           </div>
         </div>

@@ -1,28 +1,77 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, UserCircle } from 'lucide-react';
+import { Plus, UserCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SearchBar } from '@/components/common/SearchBar';
-import { ParentCard } from '@/components/cards/ParentCard';
 import { EmptyState } from '@/components/common/EmptyState';
-import { mockParents } from '@/data/mockData';
+import { useParents, ParentWithProfile } from '@/hooks/useParents';
+import { Avatar } from '@/components/common/Avatar';
+import { cn } from '@/lib/utils';
+
+const ParentCardNew = ({ parent, onClick }: { parent: ParentWithProfile; onClick: () => void }) => {
+  const displayName = parent.profile 
+    ? `${parent.profile.first_name} ${parent.profile.last_name}`
+    : `Parent ${parent.id.slice(0, 8)}`;
+  
+  const childrenNames = parent.children?.map(c => 
+    c.profile ? `${c.profile.first_name}` : c.admission_number
+  ).join(', ') || 'No children linked';
+  
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border border-border hover:shadow-card transition-all duration-200 active:scale-[0.99]"
+    >
+      <Avatar name={displayName} size="lg" />
+      <div className="flex-1 text-left">
+        <h3 className="font-semibold text-foreground">{displayName}</h3>
+        <p className="text-sm text-muted-foreground">{parent.occupation || 'Parent'}</p>
+        <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+          Children: {childrenNames}
+        </p>
+      </div>
+      <div className={cn(
+        "px-2 py-1 rounded-full text-xs font-medium",
+        parent.status === 'active' ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+      )}>
+        {parent.status}
+      </div>
+    </button>
+  );
+};
 
 const ParentsScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { data: parents, isLoading } = useParents();
 
-  const filteredParents = mockParents.filter(parent =>
-    `${parent.firstName} ${parent.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    parent.occupation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    parent.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredParents = (parents || []).filter(parent => {
+    const searchLower = searchQuery.toLowerCase();
+    const displayName = parent.profile 
+      ? `${parent.profile.first_name} ${parent.profile.last_name}`.toLowerCase()
+      : '';
+    return displayName.includes(searchLower) ||
+      (parent.occupation?.toLowerCase() || '').includes(searchLower) ||
+      (parent.profile?.email?.toLowerCase() || '').includes(searchLower);
+  });
+
+  if (isLoading) {
+    return (
+      <div className="screen-container px-4 flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading parents...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen-container px-4">
       <PageHeader
         title="Parents"
-        subtitle={`${mockParents.length} total parents`}
+        subtitle={`${parents?.length || 0} total parents`}
         action={
           <Button
             variant="gradient"
@@ -45,7 +94,7 @@ const ParentsScreen = () => {
       <div className="space-y-3">
         {filteredParents.length > 0 ? (
           filteredParents.map((parent) => (
-            <ParentCard
+            <ParentCardNew
               key={parent.id}
               parent={parent}
               onClick={() => navigate(`/parents/${parent.id}`)}

@@ -1,28 +1,76 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, GraduationCap } from 'lucide-react';
+import { Plus, GraduationCap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SearchBar } from '@/components/common/SearchBar';
-import { StudentCard } from '@/components/cards/StudentCard';
 import { EmptyState } from '@/components/common/EmptyState';
-import { mockStudents } from '@/data/mockData';
+import { useStudents, StudentWithProfile } from '@/hooks/useStudents';
+import { useClasses } from '@/hooks/useAcademics';
+import { Avatar } from '@/components/common/Avatar';
+import { cn } from '@/lib/utils';
+
+const StudentCardNew = ({ student, onClick }: { student: StudentWithProfile; onClick: () => void }) => {
+  const displayName = student.profile 
+    ? `${student.profile.first_name} ${student.profile.last_name}`
+    : `Student ${student.admission_number}`;
+  
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border border-border hover:shadow-card transition-all duration-200 active:scale-[0.99]"
+    >
+      <Avatar name={displayName} size="lg" />
+      <div className="flex-1 text-left">
+        <h3 className="font-semibold text-foreground">{displayName}</h3>
+        <p className="text-sm text-muted-foreground">
+          {student.class?.name || 'No class'} {student.section?.name ? `• ${student.section.name}` : ''}
+        </p>
+        <p className="text-xs text-muted-foreground">Roll: {student.roll_number || student.admission_number}</p>
+      </div>
+      <div className={cn(
+        "px-2 py-1 rounded-full text-xs font-medium",
+        student.status === 'active' ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+      )}>
+        {student.status}
+      </div>
+    </button>
+  );
+};
 
 const StudentsScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { data: students, isLoading, error } = useStudents();
+  const { data: classes } = useClasses();
 
-  const filteredStudents = mockStudents.filter(student =>
-    `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.rollNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredStudents = (students || []).filter(student => {
+    const searchLower = searchQuery.toLowerCase();
+    const displayName = student.profile 
+      ? `${student.profile.first_name} ${student.profile.last_name}`.toLowerCase()
+      : '';
+    return displayName.includes(searchLower) ||
+      student.admission_number.toLowerCase().includes(searchLower) ||
+      (student.roll_number?.toLowerCase() || '').includes(searchLower) ||
+      (student.profile?.email?.toLowerCase() || '').includes(searchLower);
+  });
+
+  if (isLoading) {
+    return (
+      <div className="screen-container px-4 flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading students...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen-container px-4">
       <PageHeader
         title="Students"
-        subtitle={`${mockStudents.length} total students`}
+        subtitle={`${students?.length || 0} total students`}
         action={
           <Button
             variant="gradient"
@@ -45,7 +93,7 @@ const StudentsScreen = () => {
       <div className="space-y-3">
         {filteredStudents.length > 0 ? (
           filteredStudents.map((student) => (
-            <StudentCard
+            <StudentCardNew
               key={student.id}
               student={student}
               onClick={() => navigate(`/students/${student.id}`)}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, GraduationCap } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, GraduationCap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +10,8 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -21,14 +22,26 @@ const LoginScreen = () => {
       return;
     }
 
-    const success = await login(email, password);
+    setIsSubmitting(true);
+
+    const { error } = await signIn(email, password);
     
-    if (success) {
-      toast.success('Welcome back, Principal!');
-      navigate('/dashboard');
-    } else {
-      toast.error('Invalid credentials. Try: principal@school.edu / admin123');
+    if (error) {
+      console.error('Login error:', error);
+      if (error.message.includes('Invalid login credentials')) {
+        toast.error('Invalid email or password');
+      } else if (error.message.includes('Email not confirmed')) {
+        toast.error('Please verify your email before signing in');
+      } else {
+        toast.error(error.message || 'Login failed. Please try again.');
+      }
+      setIsSubmitting(false);
+      return;
     }
+
+    toast.success('Welcome back!');
+    navigate('/dashboard');
+    setIsSubmitting(false);
   };
 
   return (
@@ -61,7 +74,7 @@ const LoginScreen = () => {
               Welcome Back
             </h2>
             <p className="text-muted-foreground text-sm">
-              Sign in to your principal account
+              Sign in to your account
             </p>
           </div>
 
@@ -74,10 +87,11 @@ const LoginScreen = () => {
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="email"
-                  placeholder="principal@school.edu"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-12"
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
@@ -94,11 +108,13 @@ const LoginScreen = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-12 pr-12"
+                  disabled={isSubmitting}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isSubmitting}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -113,6 +129,7 @@ const LoginScreen = () => {
               <button
                 type="button"
                 className="text-sm text-primary hover:underline"
+                onClick={() => navigate('/forgot-password')}
               >
                 Forgot Password?
               </button>
@@ -123,11 +140,11 @@ const LoginScreen = () => {
               variant="gradient"
               size="lg"
               className="w-full mt-6"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <div className="flex items-center gap-2">
-                  <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   <span>Signing in...</span>
                 </div>
               ) : (
@@ -136,13 +153,26 @@ const LoginScreen = () => {
             </Button>
           </form>
 
+          <div className="mt-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/signup')}
+                className="text-primary hover:underline font-medium"
+              >
+                Contact Administrator
+              </button>
+            </p>
+          </div>
+
           <div className="mt-8 p-4 bg-secondary/50 rounded-xl">
             <p className="text-xs text-center text-muted-foreground">
-              <span className="font-medium text-foreground">Demo Credentials:</span>
+              <span className="font-medium text-foreground">Multi-Role Access:</span>
               <br />
-              Email: principal@school.edu
+              Admin • Teacher • Parent • Student
               <br />
-              Password: admin123
+              <span className="text-[10px]">Contact your school administrator for credentials</span>
             </p>
           </div>
         </div>

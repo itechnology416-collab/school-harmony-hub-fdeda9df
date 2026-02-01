@@ -25,6 +25,7 @@ import AddStudentScreen from "./pages/AddStudentScreen";
 import ExamsScreen from "./pages/ExamsScreen";
 import ClassesScreen from "./pages/ClassesScreen";
 import ProfileScreen from "./pages/ProfileScreen";
+import TimetableScreen from "./pages/TimetableScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -116,6 +117,7 @@ const AppRoutes = () => {
         <Route path="/export-data" element={<ImportExportScreen />} />
         <Route path="/academic-calendar" element={<CalendarScreen />} />
         <Route path="/examinations" element={<ExamsScreen />} />
+        <Route path="/timetable" element={<TimetableScreen />} />
         
         {/* Teacher Routes */}
         <Route path="/teacher/classes" element={<ClassesScreen />} />

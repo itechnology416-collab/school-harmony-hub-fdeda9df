@@ -12,7 +12,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import LoginScreen from "./pages/LoginScreen";
 import SignUpScreen from "./pages/SignUpScreen";
 import ForgotPasswordScreen from "./pages/ForgotPasswordScreen";
-import DashboardScreen from "./pages/DashboardScreen";
+import RoleDashboard from "./pages/RoleDashboard";
 import StudentsScreen from "./pages/StudentsScreen";
 import TeachersScreen from "./pages/TeachersScreen";
 import ParentsScreen from "./pages/ParentsScreen";
@@ -101,7 +101,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       }>
         {/* Common Routes */}
-        <Route path="/dashboard" element={<DashboardScreen />} />
+        <Route path="/dashboard" element={<RoleDashboard />} />
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/notifications" element={<NotificationsScreen />} />
         

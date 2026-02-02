@@ -28,6 +28,14 @@ import ProfileScreen from "./pages/ProfileScreen";
 import TimetableScreen from "./pages/TimetableScreen";
 import NotFound from "./pages/NotFound";
 
+// New Teacher Module Pages
+import SelfAttendanceScreen from "./pages/SelfAttendanceScreen";
+import SalaryReportScreen from "./pages/SalaryReportScreen";
+import StudyMaterialScreen from "./pages/StudyMaterialScreen";
+import NoticeBoardScreen from "./pages/NoticeBoardScreen";
+import ChangePasswordScreen from "./pages/ChangePasswordScreen";
+import OnlineClassesScreen from "./pages/OnlineClassesScreen";
+
 const queryClient = new QueryClient();
 
 // Protected Route Component
@@ -104,6 +112,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<RoleDashboard />} />
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/notifications" element={<NotificationsScreen />} />
+        <Route path="/change-password" element={<ChangePasswordScreen />} />
         
         {/* Admin Routes */}
         <Route path="/students" element={<StudentsScreen />} />
@@ -122,6 +131,11 @@ const AppRoutes = () => {
         {/* Teacher Routes */}
         <Route path="/teacher/classes" element={<ClassesScreen />} />
         <Route path="/assignments" element={<ExamsScreen />} />
+        <Route path="/self-attendance" element={<SelfAttendanceScreen />} />
+        <Route path="/salary-report" element={<SalaryReportScreen />} />
+        <Route path="/study-material" element={<StudyMaterialScreen />} />
+        <Route path="/notice-board" element={<NoticeBoardScreen />} />
+        <Route path="/online-classes" element={<OnlineClassesScreen />} />
         
         {/* Parent Routes */}
         <Route path="/parent/children" element={<StudentsScreen />} />

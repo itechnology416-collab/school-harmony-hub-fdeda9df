@@ -6,11 +6,16 @@ import {
   BookOpen,
   FileText,
   PenTool,
-  MessageSquare,
-  Clock,
+  Video,
+  DollarSign,
+  FolderOpen,
   Bell,
+  Key,
   LogOut,
-  Eye
+  Eye,
+  Clock,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/common/Avatar';
@@ -19,23 +24,25 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface MenuItemProps {
   icon: React.ElementType;
   label: string;
   onClick: () => void;
-  variant?: 'primary' | 'accent' | 'success' | 'warning' | 'default';
+  variant?: 'primary' | 'accent' | 'success' | 'warning' | 'info' | 'default';
 }
 
-const MenuItem = ({ icon: Icon, label, onClick, variant = 'default' }: MenuItemProps) => {
-  const variantStyles = {
-    primary: 'bg-primary text-primary-foreground',
-    accent: 'bg-accent text-accent-foreground',
-    success: 'bg-success text-success-foreground',
-    warning: 'bg-warning text-warning-foreground',
-    default: 'bg-secondary text-secondary-foreground',
-  };
+const variantStyles = {
+  primary: 'bg-primary text-primary-foreground',
+  accent: 'bg-accent text-accent-foreground',
+  success: 'bg-success text-success-foreground',
+  warning: 'bg-warning text-warning-foreground',
+  info: 'bg-blue-500 text-white',
+  default: 'bg-secondary text-secondary-foreground',
+};
 
+const MenuItem = ({ icon: Icon, label, onClick, variant = 'default' }: MenuItemProps) => {
   return (
     <button
       onClick={onClick}
@@ -45,9 +52,9 @@ const MenuItem = ({ icon: Icon, label, onClick, variant = 'default' }: MenuItemP
         "p-4 rounded-2xl",
         variantStyles[variant]
       )}>
-        <Icon className="h-6 w-6" />
+        <Icon className="h-5 w-5" />
       </div>
-      <span className="text-xs font-medium text-foreground text-center">{label}</span>
+      <span className="text-[10px] font-medium text-foreground text-center leading-tight">{label}</span>
     </button>
   );
 };
@@ -57,6 +64,10 @@ const TeacherDashboardScreen = () => {
   const { profile, user, signOut } = useAuth();
 
   const displayName = profile ? `${profile.first_name} ${profile.last_name}` : 'Teacher';
+  const now = new Date();
+  const hours = now.getHours();
+  const greeting = hours < 12 ? 'Good Morning' : hours < 17 ? 'Good Afternoon' : 'Good Evening';
+  const isDay = hours >= 6 && hours < 18;
 
   // Fetch teacher data and their assigned classes
   const { data: teacherData } = useQuery({
@@ -64,7 +75,6 @@ const TeacherDashboardScreen = () => {
     queryFn: async () => {
       if (!user?.id) return null;
 
-      // Get teacher record
       const { data: teacher } = await supabase
         .from('teachers')
         .select('id, department, designation')
@@ -73,7 +83,6 @@ const TeacherDashboardScreen = () => {
 
       if (!teacher) return { studentCount: 0, classCount: 0, attendanceRate: 0 };
 
-      // Get assigned classes
       const { data: teacherClasses } = await supabase
         .from('teacher_classes')
         .select('class_id, section_id')
@@ -81,7 +90,6 @@ const TeacherDashboardScreen = () => {
 
       const classIds = teacherClasses?.map(tc => tc.class_id) || [];
 
-      // Get student count in assigned classes
       let studentCount = 0;
       if (classIds.length > 0) {
         const { count } = await supabase
@@ -91,7 +99,6 @@ const TeacherDashboardScreen = () => {
         studentCount = count || 0;
       }
 
-      // Get today's attendance for assigned classes
       const today = new Date().toISOString().split('T')[0];
       let attendanceRate = 0;
       if (classIds.length > 0) {
@@ -124,17 +131,12 @@ const TeacherDashboardScreen = () => {
     queryFn: async () => {
       const { data: students } = await supabase
         .from('students')
-        .select(`
-          id,
-          admission_number,
-          user_id
-        `)
+        .select('id, admission_number, user_id')
         .order('created_at', { ascending: false })
         .limit(5);
 
       if (!students) return [];
 
-      // Fetch profiles for these students
       const userIds = students.map(s => s.user_id).filter(Boolean);
       if (userIds.length === 0) return [];
 
@@ -160,30 +162,36 @@ const TeacherDashboardScreen = () => {
     navigate('/login');
   };
 
+  // Menu items matching the reference images
   const menuItems = [
     { icon: Users, label: 'Student List', path: '/students', variant: 'primary' as const },
     { icon: ClipboardCheck, label: 'Class Attendance', path: '/attendance', variant: 'success' as const },
-    { icon: Clock, label: 'Self Attendance', path: '/profile', variant: 'accent' as const },
-    { icon: Calendar, label: 'Holiday Calendar', path: '/academic-calendar', variant: 'warning' as const },
-    { icon: BookOpen, label: 'My Timetable', path: '/timetable', variant: 'primary' as const },
-    { icon: FileText, label: 'Homework Diary', path: '/assignments', variant: 'default' as const },
-    { icon: PenTool, label: 'Marks Entry', path: '/examinations', variant: 'accent' as const },
-    { icon: MessageSquare, label: 'Teacher Remarks', path: '/notifications', variant: 'success' as const },
+    { icon: Clock, label: 'Self Attendance', path: '/self-attendance', variant: 'info' as const },
+    { icon: BookOpen, label: 'My Timetable', path: '/timetable', variant: 'accent' as const },
+    { icon: FileText, label: 'Homework Diary', path: '/assignments', variant: 'warning' as const },
+    { icon: PenTool, label: 'Marks Entry', path: '/examinations', variant: 'primary' as const },
+    { icon: Video, label: 'Online Classes', path: '/online-classes', variant: 'info' as const },
+    { icon: DollarSign, label: 'Salary Report', path: '/salary-report', variant: 'success' as const },
+    { icon: FolderOpen, label: 'Study Material', path: '/study-material', variant: 'accent' as const },
+    { icon: Bell, label: 'Notice Board', path: '/notice-board', variant: 'warning' as const },
+    { icon: Key, label: 'Change Password', path: '/change-password', variant: 'default' as const },
+    { icon: LogOut, label: 'Logout', path: 'logout', variant: 'default' as const },
   ];
 
   return (
     <div className="screen-container px-4">
-      {/* Header */}
-      <div className="flex items-center justify-between py-4">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-xl font-bold font-display text-foreground">
-              {profile?.first_name || 'Teacher'}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {teacherData?.designation || 'Class Teacher'}
-            </p>
+      {/* Header with branding */}
+      <div className="flex items-center justify-between py-4 mb-2">
+        <div className="flex items-center gap-2">
+          {isDay ? (
+            <Sun className="h-6 w-6 text-warning" />
+          ) : (
+            <Moon className="h-6 w-6 text-primary" />
+          )}
+          <div className="h-8 w-8 rounded-full gradient-primary flex items-center justify-center">
+            <span className="text-primary-foreground text-xs font-bold">ES</span>
           </div>
+          <span className="font-display font-bold text-foreground">EduSync</span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/notifications')}>
@@ -194,9 +202,19 @@ const TeacherDashboardScreen = () => {
         </div>
       </div>
 
+      {/* Teacher Info */}
+      <div className="mb-6">
+        <h1 className="text-xl font-bold font-display text-foreground">
+          {displayName}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {teacherData?.designation || 'Class Teacher'}
+        </p>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="stat-card gradient-success text-success-foreground">
+        <div className="stat-card gradient-primary text-primary-foreground">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium opacity-90">Students</p>
@@ -208,7 +226,7 @@ const TeacherDashboardScreen = () => {
           </div>
         </div>
         
-        <div className="stat-card gradient-warning text-warning-foreground">
+        <div className="stat-card gradient-success text-success-foreground">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium opacity-90">Class Attendance</p>
@@ -230,7 +248,7 @@ const TeacherDashboardScreen = () => {
           </Button>
         </div>
         
-        <div className="flex gap-4 overflow-x-auto pb-2">
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {latestStudents && latestStudents.length > 0 ? (
             latestStudents.map((student) => (
               <div key={student.id} className="flex flex-col items-center gap-2 min-w-[70px]">
@@ -258,22 +276,26 @@ const TeacherDashboardScreen = () => {
               key={item.label}
               icon={item.icon}
               label={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                if (item.path === 'logout') {
+                  handleLogout();
+                } else {
+                  navigate(item.path);
+                }
+              }}
               variant={item.variant}
             />
           ))}
         </div>
       </div>
 
-      {/* Logout Button */}
-      <Button 
-        variant="outline" 
-        className="w-full h-12 text-destructive hover:text-destructive hover:bg-destructive/10"
-        onClick={handleLogout}
-      >
-        <LogOut className="h-4 w-4 mr-2" />
-        Sign Out
-      </Button>
+      {/* Quick Info */}
+      <div className="p-4 bg-secondary/50 rounded-2xl text-center">
+        <p className="text-xs text-muted-foreground">
+          {format(now, 'EEEE, MMMM d, yyyy')} • {format(now, 'HH:mm')}
+        </p>
+        <p className="text-sm font-medium text-foreground mt-1">{greeting}, {profile?.first_name}! 👋</p>
+      </div>
     </div>
   );
 };

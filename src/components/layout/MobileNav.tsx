@@ -11,6 +11,8 @@ import {
   CreditCard,
   Award,
   User,
+  BookOpen,
+  Bell,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,20 +24,6 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-const iconMap: Record<string, LucideIcon> = {
-  LayoutDashboard,
-  GraduationCap,
-  Users,
-  UserCircle,
-  Settings,
-  School,
-  ClipboardCheck,
-  FileText,
-  CreditCard,
-  Award,
-  User,
-};
-
 const adminNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: GraduationCap, label: 'Students', path: '/students' },
@@ -45,10 +33,10 @@ const adminNavItems: NavItem[] = [
 ];
 
 const teacherNavItems: NavItem[] = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: School, label: 'Classes', path: '/teacher/classes' },
+  { icon: LayoutDashboard, label: 'Home', path: '/dashboard' },
   { icon: ClipboardCheck, label: 'Attendance', path: '/attendance' },
-  { icon: FileText, label: 'Assignments', path: '/assignments' },
+  { icon: BookOpen, label: 'Timetable', path: '/timetable' },
+  { icon: Bell, label: 'Notices', path: '/notice-board' },
   { icon: User, label: 'Profile', path: '/profile' },
 ];
 
@@ -78,7 +66,7 @@ export const MobileNav = () => {
     if (isTeacher()) return teacherNavItems;
     if (isParent()) return parentNavItems;
     if (isStudent()) return studentNavItems;
-    return adminNavItems; // Default fallback
+    return adminNavItems;
   };
 
   const navItems = getNavItems();

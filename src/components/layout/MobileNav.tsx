@@ -42,9 +42,9 @@ const teacherNavItems: NavItem[] = [
 
 const parentNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: Users, label: 'Children', path: '/parent/children' },
-  { icon: ClipboardCheck, label: 'Attendance', path: '/parent/attendance' },
   { icon: CreditCard, label: 'Fees', path: '/parent/fees' },
+  { icon: ClipboardCheck, label: 'Attendance', path: '/parent/attendance' },
+  { icon: Bell, label: 'Notices', path: '/notice-board' },
   { icon: User, label: 'Profile', path: '/profile' },
 ];
 

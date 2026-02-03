@@ -1,21 +1,26 @@
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardScreen from './DashboardScreen';
 import TeacherDashboardScreen from './TeacherDashboardScreen';
+import ParentDashboardScreen from './ParentDashboardScreen';
 
 const RoleDashboard = () => {
   const { isTeacher, isAdmin, isParent, isStudent } = useAuth();
 
-  // Show role-specific dashboards
-  if (isTeacher() && !isAdmin()) {
+  // Show role-specific dashboards (priority order matters)
+  if (isAdmin()) {
+    return <DashboardScreen />;
+  }
+
+  if (isTeacher()) {
     return <TeacherDashboardScreen />;
   }
 
-  // TODO: Add ParentDashboardScreen and StudentDashboardScreen
-  // if (isParent() && !isAdmin() && !isTeacher()) {
-  //   return <ParentDashboardScreen />;
-  // }
+  if (isParent()) {
+    return <ParentDashboardScreen />;
+  }
 
-  // if (isStudent() && !isAdmin() && !isTeacher() && !isParent()) {
+  // TODO: Add StudentDashboardScreen
+  // if (isStudent()) {
   //   return <StudentDashboardScreen />;
   // }
 

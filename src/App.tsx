@@ -36,6 +36,13 @@ import NoticeBoardScreen from "./pages/NoticeBoardScreen";
 import ChangePasswordScreen from "./pages/ChangePasswordScreen";
 import OnlineClassesScreen from "./pages/OnlineClassesScreen";
 
+// New Parent & Shared Module Pages
+import FeePaymentScreen from "./pages/FeePaymentScreen";
+import WalletScreen from "./pages/WalletScreen";
+import HolidayCalendarScreen from "./pages/HolidayCalendarScreen";
+import TeacherRemarksScreen from "./pages/TeacherRemarksScreen";
+import HomeworkDiaryScreen from "./pages/HomeworkDiaryScreen";
+
 const queryClient = new QueryClient();
 
 // Protected Route Component
@@ -140,11 +147,22 @@ const AppRoutes = () => {
         {/* Parent Routes */}
         <Route path="/parent/children" element={<StudentsScreen />} />
         <Route path="/parent/attendance" element={<AttendanceScreen />} />
-        <Route path="/parent/fees" element={<SettingsScreen />} />
+        <Route path="/parent/fees" element={<FeePaymentScreen />} />
+        <Route path="/parent/wallet" element={<WalletScreen />} />
+        <Route path="/parent/timetable" element={<TimetableScreen />} />
+        <Route path="/parent/marks" element={<ExamsScreen />} />
+        <Route path="/parent/homework" element={<HomeworkDiaryScreen />} />
+        
+        {/* Shared Routes */}
+        <Route path="/holiday-calendar" element={<HolidayCalendarScreen />} />
+        <Route path="/teacher-remarks" element={<TeacherRemarksScreen />} />
+        <Route path="/homework-diary" element={<HomeworkDiaryScreen />} />
+        <Route path="/fee-payments" element={<FeePaymentScreen />} />
+        <Route path="/wallet" element={<WalletScreen />} />
         
         {/* Student Routes */}
         <Route path="/student/classes" element={<ClassesScreen />} />
-        <Route path="/student/assignments" element={<ExamsScreen />} />
+        <Route path="/student/assignments" element={<HomeworkDiaryScreen />} />
         <Route path="/student/results" element={<ExamsScreen />} />
       </Route>
       

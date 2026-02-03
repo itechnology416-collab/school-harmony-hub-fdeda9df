@@ -168,7 +168,7 @@ const TeacherDashboardScreen = () => {
     { icon: ClipboardCheck, label: 'Class Attendance', path: '/attendance', variant: 'success' as const },
     { icon: Clock, label: 'Self Attendance', path: '/self-attendance', variant: 'info' as const },
     { icon: BookOpen, label: 'My Timetable', path: '/timetable', variant: 'accent' as const },
-    { icon: FileText, label: 'Homework Diary', path: '/assignments', variant: 'warning' as const },
+    { icon: FileText, label: 'Homework Diary', path: '/homework-diary', variant: 'warning' as const },
     { icon: PenTool, label: 'Marks Entry', path: '/examinations', variant: 'primary' as const },
     { icon: Video, label: 'Online Classes', path: '/online-classes', variant: 'info' as const },
     { icon: DollarSign, label: 'Salary Report', path: '/salary-report', variant: 'success' as const },

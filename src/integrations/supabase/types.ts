@@ -617,6 +617,66 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string
+          fee_structure_id: string | null
+          id: string
+          invoice_number: string
+          paid_amount: number | null
+          paid_at: string | null
+          status: string | null
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          due_date: string
+          fee_structure_id?: string | null
+          id?: string
+          invoice_number: string
+          paid_amount?: number | null
+          paid_at?: string | null
+          status?: string | null
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string
+          fee_structure_id?: string | null
+          id?: string
+          invoice_number?: string
+          paid_amount?: number | null
+          paid_at?: string | null
+          status?: string | null
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_fee_structure_id_fkey"
+            columns: ["fee_structure_id"]
+            isOneToOne: false
+            referencedRelation: "fee_structures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marks: {
         Row: {
           created_at: string
@@ -732,6 +792,92 @@ export type Database = {
             columns: ["recipient_class_id"]
             isOneToOne: false
             referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      online_classes: {
+        Row: {
+          class_id: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          meeting_id: string | null
+          meeting_link: string | null
+          meeting_password: string | null
+          recording_url: string | null
+          scheduled_at: string
+          section_id: string | null
+          status: string | null
+          subject_id: string | null
+          teacher_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_id?: string | null
+          meeting_link?: string | null
+          meeting_password?: string | null
+          recording_url?: string | null
+          scheduled_at: string
+          section_id?: string | null
+          status?: string | null
+          subject_id?: string | null
+          teacher_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_id?: string | null
+          meeting_link?: string | null
+          meeting_password?: string | null
+          recording_url?: string | null
+          scheduled_at?: string
+          section_id?: string | null
+          status?: string | null
+          subject_id?: string | null
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "online_classes_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_classes_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_classes_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_classes_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
             referencedColumns: ["id"]
           },
         ]
@@ -1222,6 +1368,54 @@ export type Database = {
           },
         ]
       }
+      teacher_remarks: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_shared_with_parent: boolean | null
+          remark_type: string
+          student_id: string
+          subject: string | null
+          teacher_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_shared_with_parent?: boolean | null
+          remark_type: string
+          student_id: string
+          subject?: string | null
+          teacher_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_shared_with_parent?: boolean | null
+          remark_type?: string
+          student_id?: string
+          subject?: string | null
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_remarks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_remarks_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_subjects: {
         Row: {
           created_at: string
@@ -1451,6 +1645,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          parent_id: string
+          reference_id: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          parent_id: string
+          reference_id?: string | null
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          parent_id?: string
+          reference_id?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "parents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
